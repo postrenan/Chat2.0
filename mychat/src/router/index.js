@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import BaseView from '../views/BaseView.vue'
+import Rooms from '../components/Rooms.vue'
+import Chat from '../components/Chat.vue'
+import Login from '../components/Login.vue'
 
 Vue.use(VueRouter)
 
@@ -11,8 +14,18 @@ const router = new VueRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: Login
     },
+    {
+      path: '/rooms',
+      name: 'rooms',
+      component: Rooms
+    },
+    {
+      path: '/chat',
+      name: 'chat',
+      component: Chat
+    }
   ]
 })
 
