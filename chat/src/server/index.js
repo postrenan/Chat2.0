@@ -15,12 +15,17 @@ let messages = [];
 
 io.on('connection', (socket) => {
     socket.on('userLogin', (nickname) => {
-        if (!users.includes(nickname)){
-            users = nickname;
+        if(!nickname.includes(users.name)){
+            users = {id: socket.id, name: nickname};
             io.emit('userValidation', true);
-            console.log('new user has been added');
+            console.log(`new user has been added ${nickname}`);
         }
-        io.emit('userValidation', false);
+        socket.emit('userValidation', false);
+    });
+
+    socket.on('getUserName', ()=> {
+        let userName = users.name;
+        io.emit('reciveUserName', userName);
     });
 
     socket.on('userMessage', (message) => {
@@ -29,7 +34,10 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-
+       let user = users.find(user  => user.id === socket.id);
+                let message = `O usuario ${user} saiu`;
+                messages.push(message);
+                io.emit('messageForAll', messages);
     });
 });
 server.listen(3000, () => {

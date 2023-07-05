@@ -3,7 +3,7 @@
     <div class="section columns is-mobile is-half is-centered is-vcentered">
       <div class="columns is-mobile is-half is-vcentered">
         <div class="column is-vcentered box">
-          <h2 class="title">Escolha uma sala</h2>
+          <h2 class="title">Olá {{name}} escolha a sua sala</h2>
         </div>
       </div>
     </div>
@@ -28,7 +28,15 @@ const socket = io('127.0.0.1:3000');
 export default {
   name: 'RoomSelect',
   data() {
-    return {}
+    return {
+      name:'',
+    }
+  },
+  created() {
+    socket.emit('getUserName' );
+    socket.on('reciveUserName', (userName) =>{
+      this.name = userName;
+    });
   },
   methods: {
     redirectToRoom() {
