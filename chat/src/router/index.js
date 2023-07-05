@@ -21,7 +21,7 @@ const router = new VueRouter({
             component: RoomSelectView
         },
         {
-            path: '/sala1',
+            path: '/sala',
             name: 'room1',
             component: FirstRoom
         }

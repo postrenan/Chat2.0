@@ -34,8 +34,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-       let user = users.find(user  => user.id === socket.id);
-                let message = `O usuario ${user} saiu`;
+                let message = `O usuario ${users.name} saiu`;
                 messages.push(message);
                 io.emit('messageForAll', messages);
     });

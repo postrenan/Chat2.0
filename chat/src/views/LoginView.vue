@@ -33,7 +33,7 @@ export default {
       }
       socket.on('userValidation', (validation) => {
         if (validation) {
-          this.$router.push('/salas');
+          this.$router.push('/sala');
         } else {
           this.erro = "usuario existente";
         }

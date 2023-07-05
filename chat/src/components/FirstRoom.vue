@@ -2,17 +2,43 @@
   <div class="app ">
     <div class="columns">
       <div class="column is-2 usersColumn">
-        <div class=" section columns is-mobile is-half is-vcentered">
+        <div class=" section columns is-mobile is-half is-vcentered userWelcome">
           <div class="column has-text-centered has-text-light ">
-            <h2>Online</h2>
+            <h2 class="box">Olá {{ name }}</h2>
           </div>
         </div>
-        <div class="section is-mobile is-half is-vcentered usersOnline">
-          <div class=" is-mobile is-half has-text-centered">
-            <div class="userOnline">
-              <p class="">user 1</p>
+        <div class="onlineUsers">
+          <div class=" section columns is-mobile is-half is-vcentered onlineText">
+            <div class="column has-text-centered has-text-light">
+              <h2>Online</h2>
             </div>
-
+          </div>
+          <div class="section is-mobile is-half is-vcentered usersOnline">
+            <div class=" is-mobile is-half has-text-centered">
+              <div class="userOnline">
+                <p class="">user 1</p>
+              </div>
+              <div class="userOnline">
+                <p class="">user 1</p>
+              </div>
+              <div class="userOnline">
+                <p class="">user 1</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="avalibleRooms">
+          <div class=" section columns is-mobile is-half is-vcentered roomText">
+            <div class="column has-text-centered has-text-light ">
+              <h2>Salas</h2>
+            </div>
+          </div>
+          <div class="section is-mobile is-half is-vcentered usersOnline">
+            <div class=" is-mobile is-half has-text-centered">
+              <div class="userOnline">
+                <p class="">Sala 1</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -26,6 +52,13 @@
 
         <div class=" section columns is-mobile is-half is-vcentered">
           <div class=" is-mobile is-half messagesSection">
+            <div class="box singleMessage" v-for="message in allMessages">
+              <p class="">{{ message }}<br></p>
+            </div>
+          </div>
+        </div>
+        <div class=" section columns is-mobile  is-half is-vcentered">
+          <div class=" is-mobile is-half has-text-left messagesSection">
             <div class="box singleMessage" v-for="message in allMessages">
               <p class="">{{ message }}<br></p>
             </div>
@@ -55,12 +88,20 @@ export default {
   data() {
     return {
       userMessage: '',
+      userSendMessage: [],
       allMessages: [],
+      name: '',
     }
   },
   mounted() {
     socket.on('messageForAll', (messages) => {
       this.allMessages = messages;
+    });
+  },
+  created() {
+    socket.emit('getUserName');
+    socket.on('reciveUserName', (userName) => {
+      this.name = userName;
     });
   },
   methods: {
@@ -78,18 +119,36 @@ export default {
   height: 100vh;
 }
 
-.chatColum {
-  background-image: url('../assets/download.png');
-  height: 100vh;
+.userWelcome {
+  padding: 24px 48px 0 48px;
+}
+
+.onlineText {
+  padding: 0 48px 0 48px;
+  border-top: white solid 2px ;
+  border-bottom: white solid 2px ;
+}
+
+.usersOnline {
+  padding: 10px;
+  margin-bottom: 10px;
 }
 
 .userOnline {
+  padding: 10px;
   border: white solid 2px;
   border-radius: 20px;
 }
 
-.usersOnline {
-  padding: 5px;
+.roomText {
+  padding: 0 48px 0 48px;
+  border-top: white solid 2px ;
+  border-bottom: white solid 2px ;
+}
+
+.chatColum {
+  background-image: url('../assets/download.png');
+  height: 100vh;
 }
 
 .messagesSection {

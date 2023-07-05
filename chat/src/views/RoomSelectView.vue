@@ -32,12 +32,7 @@ export default {
       name:'',
     }
   },
-  created() {
-    socket.emit('getUserName' );
-    socket.on('reciveUserName', (userName) =>{
-      this.name = userName;
-    });
-  },
+
   methods: {
     redirectToRoom() {
       this.$router.push('/sala1');
