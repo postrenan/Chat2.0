@@ -11,32 +11,36 @@ const io = new Server(server, {
 });
 
 let users = [];
-let messages = [];
+const messages = [];
 
 io.on('connection', (socket) => {
     socket.on('userLogin', (nickname) => {
-        if(!nickname.includes(users.name)){
-            users = {id: socket.id, name: nickname};
+        if (!nickname.includes(users.name)) {
+            users.push({id: socket.id, name: nickname});
             io.emit('userValidation', true);
-            console.log(`new user has been added ${nickname}`);
         }
         socket.emit('userValidation', false);
     });
 
-    socket.on('getUserName', ()=> {
-        let userName = users.name;
-        io.emit('reciveUserName', userName);
+    socket.on('getOnlineUsers', () => {
+        socket.emit('receivedUsers', users);
     });
 
     socket.on('userMessage', (message) => {
-        messages.push(message);
-        io.emit('messageForAll', messages);//emitir server cliente usa io
+        if (message !== '') {
+            messages.push(message);
+            if (messages !== ['']) {
+                io.emit('messageForAll', messages);
+            }
+        }
     });
 
     socket.on('disconnect', () => {
-                let message = `O usuario ${users.name} saiu`;
-                messages.push(message);
-                io.emit('messageForAll', messages);
+        let user = users.find(users => users.id === socket.id);//problema de dupla conexão afeta a saida do usuario
+        let message = `O usuario ${user} saiu`;
+        let time = socket.time
+        messages.push(message);
+        io.emit('messageForAll', messages);
     });
 });
 server.listen(3000, () => {

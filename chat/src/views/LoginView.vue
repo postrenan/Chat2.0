@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <div class="section columns is-mobile is-half is-centered is-vcentered">
+    <div v-if="openChat !== true" class="section columns is-mobile is-half is-centered is-vcentered">
       <div class="columns is-mobile is-half is-vcentered">
         <div class="column is-vcentered box">
           <h2 class="title">Digite um apelido</h2>
@@ -10,21 +10,30 @@
         </div>
       </div>
     </div>
+    <div v-else>
+      <RoomsComponent/>
+    </div>
+
   </div>
 </template>
 
 <script>
 import io from "socket.io-client";
-
 const socket = io('127.0.0.1:3000');
+import RoomsComponent from "@/components/RoomsComponent.vue";
 
 export default {
   name: 'Login',
+  components: {RoomsComponent},
   data() {
     return {
       nickname: '',
       erro: null,
+      openChat: false
     }
+  },
+  created() {
+    this.openChat = false;
   },
   methods: {
     login(nickname) {
@@ -33,7 +42,8 @@ export default {
       }
       socket.on('userValidation', (validation) => {
         if (validation) {
-          this.$router.push('/sala');
+          document.cookie = `${nickname}`
+          this.openChat = true;
         } else {
           this.erro = "usuario existente";
         }

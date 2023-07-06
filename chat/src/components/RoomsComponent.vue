@@ -4,7 +4,7 @@
       <div class="column is-2 usersColumn">
         <div class=" section columns is-mobile is-half is-vcentered userWelcome">
           <div class="column has-text-centered has-text-light ">
-            <h2 class="box">Olá {{ name }}</h2>
+            <h2 class="box">Olá {{ person }}</h2>
           </div>
         </div>
         <div class="onlineUsers">
@@ -16,13 +16,9 @@
           <div class="section is-mobile is-half is-vcentered usersOnline">
             <div class=" is-mobile is-half has-text-centered">
               <div class="userOnline">
-                <p class="">user 1</p>
-              </div>
-              <div class="userOnline">
-                <p class="">user 1</p>
-              </div>
-              <div class="userOnline">
-                <p class="">user 1</p>
+                <div v-for="user in allOtherUsers">
+                  <p class="">{{ user.name }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -35,41 +31,38 @@
           </div>
           <div class="section is-mobile is-half is-vcentered usersOnline">
             <div class=" is-mobile is-half has-text-centered">
-              <div class="userOnline">
-                <p class="">Sala 1</p>
+              <div>
+                <button @onclick="redirect(1)" class=" button is-rounded">Sala 1</button>
               </div>
+              <div>
+                <button @onclick="redirect(2)" class=" button is-rounded">Sala 2</button>
+              </div>
+              <div>
+                <button @onclick="redirect(3)" class=" button is-rounded">Sala 3</button>
+              </div>
+              <div>
+                <button @onclick="redirect(4)" class=" button is-rounded">Sala 4</button>
+              </div>
+
             </div>
           </div>
         </div>
-
       </div>
-      <div class="column is-10 chatColum">
-        <div class=" section columns is-mobile is-half is-vcentered">
-          <div class="column has-text-centered box ">
-            <h2>Sala1</h2>
-          </div>
-        </div>
 
-        <div class=" section columns is-mobile is-half is-vcentered">
+      <div class="column is-10 chatColum ">
+        <div class=" section columns is-mobile is-half ">
           <div class=" is-mobile is-half messagesSection">
             <div class="box singleMessage" v-for="message in allMessages">
               <p class="">{{ message }}<br></p>
             </div>
           </div>
         </div>
-        <div class=" section columns is-mobile  is-half is-vcentered">
-          <div class=" is-mobile is-half has-text-left messagesSection">
-            <div class="box singleMessage" v-for="message in allMessages">
-              <p class="">{{ message }}<br></p>
-            </div>
-          </div>
-        </div>
 
-        <div class="columns is-mobile is-centered is-vcentered footer-chat">
-          <div class="columns is-mobile is-half ">
-            <div class="columns is-vcentered ">
-              <input v-model="userMessage" class="input is-rounded write-message" type="text">
-              <button @click="sendMsg(userMessage)" class="button is-rounded">Enviar</button>
+        <div class=" section columns is-mobile is-half is-centered footer-chat">
+          <div class="column is-mobile is-half ">
+            <div class="columns">
+              <input v-model="userMessage" class="input sendMessage" type="text">
+              <button @click="sendMsg(userMessage)" class="button sendMessage ">-></button>
             </div>
           </div>
         </div>
@@ -79,35 +72,42 @@
 </template>
 
 <script>
-import io from 'socket.io-client';
-
-const socket = io('127.0.0.1:3000');
 
 export default {
-  name: 'FirstRoom',
+  name: 'RoomsComponent',
   data() {
     return {
       userMessage: '',
       userSendMessage: [],
       allMessages: [],
       name: '',
+      users: '',
+      person: document.cookie,
+      allOtherUsers: [],
     }
   },
   mounted() {
-    socket.on('messageForAll', (messages) => {
+    this.$soketio.emit('userMessage');
+    this.$soketio.on('messageForAll', (messages) => {
       this.allMessages = messages;
+    });
+    this.$soketio.on('receivedUsers', (users) => {
+      this.allOtherUsers = users;
+      console.log(this.allOtherUsers, users);
     });
   },
   created() {
-    socket.emit('getUserName');
-    socket.on('reciveUserName', (userName) => {
-      this.name = userName;
-    });
+    this.$soketio.emit('getOnlineUsers');
+
   },
   methods: {
     sendMsg(text) {
-      socket.emit('userMessage', text);
+      this.$soketio.emit('userMessage', text);
     },
+    redirect(key) {
+      this.$soketio.join("key");
+    },
+
   }
 }
 </script>
@@ -125,8 +125,8 @@ export default {
 
 .onlineText {
   padding: 0 48px 0 48px;
-  border-top: white solid 2px ;
-  border-bottom: white solid 2px ;
+  border-top: white solid 2px;
+  border-bottom: white solid 2px;
 }
 
 .usersOnline {
@@ -142,8 +142,8 @@ export default {
 
 .roomText {
   padding: 0 48px 0 48px;
-  border-top: white solid 2px ;
-  border-bottom: white solid 2px ;
+  border-top: white solid 2px;
+  border-bottom: white solid 2px;
 }
 
 .chatColum {
@@ -151,11 +151,13 @@ export default {
   height: 100vh;
 }
 
+.messagesSection::-webkit-scrollbar {
+  display: none;
+}
+
 .messagesSection {
-  max-height: 600px;
-  max-width: 1000px;
+  max-height: 800px;
   overflow: scroll;
-  padding-right: 900px;
 }
 
 .singleMessage {
@@ -165,14 +167,18 @@ export default {
 }
 
 .footer-chat {
-  margin-bottom: 20px;
-  width: calc(65% - 66px);
+  width: 100%;
+  margin: 0;
+  padding: 0 25% 0 48px;
   height: 70px;
-  display: flex;
-  align-items: center;
-  position: absolute;
+  position: fixed;
   bottom: 0;
-  background-color: transparent;
-  border-top: 2px solid #EEE;
 }
+
+.sendMessage {
+  background-color: black;
+  color: white;
+}
+
+
 </style>
