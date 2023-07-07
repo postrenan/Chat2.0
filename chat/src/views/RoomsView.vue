@@ -32,28 +32,33 @@
           <div class="section is-mobile is-half is-vcentered usersOnline">
             <div class=" is-mobile is-half has-text-centered">
               <div>
-                <button @onclick="redirect(1)" class=" button is-rounded">Sala 1</button>
+                <button @onclick="redirect(1)" class=" button is-rounded">General</button>
               </div>
               <div>
-                <button @onclick="redirect(2)" class=" button is-rounded">Sala 2</button>
+                <button @onclick="redirect(2)" class=" button is-rounded">Off-topic</button>
               </div>
+
               <div>
-                <button @onclick="redirect(3)" class=" button is-rounded">Sala 3</button>
-              </div>
-              <div>
-                <button @onclick="redirect(4)" class=" button is-rounded">Sala 4</button>
+                <button class=" button is-rounded">Criar sala</button>
               </div>
 
             </div>
           </div>
         </div>
+        <div class="avalibleRooms">
+          <div class=" section columns is-mobile is-half is-vcentered roomText">
+            <div class="column has-text-centered has-text-light ">
+              <button @click="getOut()" class=" is-rounded">Logout</button>
+            </div>
+          </div>
+        </div>
       </div>
-
       <div class="column is-10 chatColum ">
         <div class=" section columns is-mobile is-half ">
           <div class=" is-mobile is-half messagesSection">
             <div class="box singleMessage" v-for="message in allMessages">
-              <p class="">{{ message }}<br></p>
+              <p class="">{{ message }} <MessageBodyComponent/></p>
+
             </div>
           </div>
         </div>
@@ -72,42 +77,33 @@
 </template>
 
 <script>
+import {userConnectionMixin} from "@/userConnectionMixin";
+import MessageBodyComponent from '../components/MessageBodyComponent.vue'
 
 export default {
-  name: 'RoomsComponent',
-  data() {
-    return {
-      userMessage: '',
-      userSendMessage: [],
-      allMessages: [],
-      name: '',
-      users: '',
-      person: document.cookie,
-      allOtherUsers: [],
-    }
+  mixins: [userConnectionMixin],
+  name: 'RoomsView',
+  components: {MessageBodyComponent},
+  props: {
+    content: String,
+    user: String,
   },
   mounted() {
-    this.$soketio.emit('userMessage');
-    this.$soketio.on('messageForAll', (messages) => {
+    this.socket.on('messageForAll', (messages) => {
       this.allMessages = messages;
     });
-    this.$soketio.on('receivedUsers', (users) => {
+    this.socket.on('receivedUsers', (users) => {
       this.allOtherUsers = users;
-      console.log(this.allOtherUsers, users);
     });
   },
-  created() {
-    this.$soketio.emit('getOnlineUsers');
-
-  },
   methods: {
-    sendMsg(text) {
-      this.$soketio.emit('userMessage', text);
-    },
     redirect(key) {
-      this.$soketio.join("key");
+      this.socket.join("key");
     },
-
+    getOut() {
+      this.socket.disconnect();
+      this.$router.push('/');
+    }
   }
 }
 </script>

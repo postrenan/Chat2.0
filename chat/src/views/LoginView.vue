@@ -1,6 +1,6 @@
 <template>
   <div class="app">
-    <div v-if="openChat !== true" class="section columns is-mobile is-half is-centered is-vcentered">
+    <div class="section columns is-mobile is-half is-centered is-vcentered">
       <div class="columns is-mobile is-half is-vcentered">
         <div class="column is-vcentered box">
           <h2 class="title">Digite um apelido</h2>
@@ -10,40 +10,35 @@
         </div>
       </div>
     </div>
-    <div v-else>
-      <RoomsComponent/>
-    </div>
 
   </div>
 </template>
 
 <script>
-import io from "socket.io-client";
-const socket = io('127.0.0.1:3000');
-import RoomsComponent from "@/components/RoomsComponent.vue";
+
+import RoomsComponent from "@/views/RoomsView.vue";
+import {userConnectionMixin} from "@/userConnectionMixin";
+
 
 export default {
   name: 'Login',
+  mixins: [userConnectionMixin],
   components: {RoomsComponent},
   data() {
     return {
       nickname: '',
       erro: null,
-      openChat: false
     }
-  },
-  created() {
-    this.openChat = false;
   },
   methods: {
     login(nickname) {
       if (nickname !== '') {
-        socket.emit('userLogin', nickname);
+        this.socket.emit('userLogin', nickname);
       }
-      socket.on('userValidation', (validation) => {
+      this.socket.on('userValidation', (validation) => {
         if (validation) {
           document.cookie = `${nickname}`
-          this.openChat = true;
+          this.$router.push('/salas');
         } else {
           this.erro = "usuario existente";
         }
